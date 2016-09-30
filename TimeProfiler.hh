@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with sequence-translator. If not, see <http://www.gnu.org/licenses/>.
- */ 
+ */
 
 #include <string>
 #include <ctime>
@@ -29,9 +29,9 @@
 
 class TimeProfiler {
     private:
-		typedef std::pair<std::string, std::time_t> timer_t;
-		std::stack<timer_t> timers_launched_;
-		std::list<timer_t> timers_finished_;
+        typedef std::pair<std::string, std::time_t> timer_t;
+        std::stack<timer_t> timers_launched_;
+        std::list<timer_t> timers_finished_;
 
     public:
         void start_new_timer(const std::string& timer_name);

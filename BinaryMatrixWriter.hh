@@ -5,8 +5,8 @@
 
 class BinaryMatrixWriter
 {
-	public:
-		static void write(const Matrix& mat, const std::string& precomputed_cormat_path);
+    public:
+        static void write(const Matrix& mat, const std::string& precomputed_cormat_path);
 };
 
 #endif //BINARY_MATRIX_WRITER_HH
