@@ -1,38 +1,45 @@
 #include "BinaryMatrixReader.hh"
+#include <fstream>
+#include <cstring>
+#include <stdexcept>
 
-    BinaryMatrixReader::BinaryMatrixReader(const std::string& matrix_path)
-: matrix_path_(matrix_path), matrix_ifs_(matrix_path_.c_str(), std::ios_base::binary)
+Matrix BinaryMatrixReader::read(const std::string& input_file)
 {
-    // Read matrix dimensions once for all
-    matrix_ifs_.read(reinterpret_cast<char*>(&matrix_num_vars_), sizeof(uint64_t));
-    matrix_ifs_.read(reinterpret_cast<char*>(&matrix_num_obs_), sizeof(uint64_t));
-    vars_ids_off_ = matrix_ifs_.tellg();
-    vars_data_off_ = vars_ids_off_ + sizeof(uint32_t)*matrix_num_vars_;
+    std::ifstream ifs;
+    ifs.open(input_file.c_str());
+
+    char header[sizeof(Matrix::FILE_TYPE)-1];
+    ifs.read(header, sizeof(header));
+
+    if (std::memcmp(header, Matrix::FILE_TYPE, sizeof(header)) != 0)
+        throw std::invalid_argument(input_file + " is not a valid binary matrix file.");
+
+    // Read dimensions
+    size_t num_vars;
+    size_t num_obs;
+    ifs.read(reinterpret_cast<char*>(&num_vars), sizeof(size_t));
+    ifs.read(reinterpret_cast<char*>(&num_obs), sizeof(size_t));
+
+    // Allocate memory
+    Matrix mat(num_vars, num_obs);
+
+    // Read variables names
+    for (size_t curr_var = 0; curr_var < mat.num_vars(); ++curr_var)
+    {
+        std::getline(ifs, mat.var_name(curr_var), '\0' );
+    }
+
+    // Read observations names
+    for (size_t curr_obs = 0; curr_obs < mat.num_obs(); ++curr_obs)
+    {
+        std::getline(ifs, mat.obs_name(curr_obs), '\0' );
+    }
+
+    // Read matrix data
+    ifs.read(reinterpret_cast<char*>(mat.data_), sizeof(double)*mat.num_vars()*mat.num_obs());
+
+    ifs.close();
+
+    return mat;
 }
 
-bool BinaryMatrixReader::get_matrix_vars_ids(uint64_t block_start, uint64_t block_end, std::vector<uint32_t>& vars_ids_block)
-{
-    if ((block_start > block_end) || (block_end >= matrix_num_vars_))
-        return false;
-
-    vars_ids_block.resize(block_end-block_start);
-
-    matrix_ifs_.seekg(vars_ids_off_+sizeof(uint32_t)*block_start);
-    matrix_ifs_.read(reinterpret_cast<char*>(vars_ids_block.data()), sizeof(uint32_t)*vars_ids_block.size());
-
-    return true;
-}
-
-bool BinaryMatrixReader::get_matrix_vars_data(uint64_t block_start, uint64_t block_end, std::vector<double>& vars_data_block)
-{
-    if ((block_start > block_end) || (block_end >= matrix_num_vars_))
-        return false;
-
-    vars_data_block.resize((block_end-block_start)*matrix_num_obs_);
-
-    matrix_ifs_.seekg(vars_data_off_+sizeof(double)*block_start*matrix_num_obs_);
-    matrix_ifs_.read(reinterpret_cast<char*>(vars_data_block.data()), sizeof(double)*vars_data_block.size());
-
-    return true;
-
-}

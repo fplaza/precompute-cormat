@@ -16,9 +16,8 @@ Parameters Parameters::parse(int argc, char* argv[])
     po::options_description misc_parameters("Miscellaneous parameters");
 
     io_parameters.add_options()
-        ("matrix,i", po::value<std::string>(&pars.matrix_path), "Text file containing the variables and their respective observations.")
-        ("precomputed-cormat,o", po::value<std::string>(&pars.precomputed_cormat_path), "Generated binary file containing the precomputed correlation matrix.")
-        ("with-header", boost::program_options::bool_switch(&pars.with_header), "Set if the input matrix has an header to be discarded.")
+        ("input-file,i", po::value<std::string>(&pars.input_file), "Text file containing the variables and their respective observations.")
+        ("output-file,o", po::value<std::string>(&pars.output_file), "Generated binary file containing the precomputed correlation matrix.")
         ;
 
     computation_parameters.add_options()
@@ -45,8 +44,8 @@ Parameters Parameters::parse(int argc, char* argv[])
 
     po::notify(vm);
 
-    check_file_is_readable(pars.matrix_path);
-    check_file_is_writable(pars.precomputed_cormat_path);
+    check_file_is_readable(pars.input_file);
+    check_file_is_writable(pars.output_file);
 
     if (pars.cor_method != "pearson" && pars.cor_method != "spearman")
         throw (std::invalid_argument("error: '" + pars.cor_method + "' is not a valid correlation coefficient."));

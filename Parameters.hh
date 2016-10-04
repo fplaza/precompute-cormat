@@ -6,9 +6,8 @@
 
 struct Parameters
 {
-    std::string matrix_path;
-    std::string precomputed_cormat_path;
-    bool with_header;
+    std::string input_file;
+    std::string output_file;
     std::string cor_method;
     uint64_t min_non_zero;
 

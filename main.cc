@@ -4,9 +4,10 @@
 #include "TimeProfiler.hh"
 #include "Parameters.hh"
 #include "TextMatrixReader.hh"
-#include "MatrixManip.hh"
+#include "TextMatrixWriter.hh"
 #include "BinaryMatrixWriter.hh"
 #include "BinaryMatrixReader.hh"
+#include "MatrixManip.hh"
 
 void no_more_memory()
 {
@@ -27,7 +28,7 @@ int main(int argc, char *argv[])
 
         std::cout << "Reading matrix..." << std::endl;
         time_profiler.start_new_timer("Reading matrix");
-        Matrix mat = TextMatrixReader::read(pars.matrix_path, pars.with_header);
+        Matrix mat = TextMatrixReader::read(pars.input_file);
         time_profiler.stop_last_timer();
         std::cout << "Done." <<
             "The matrix has "  << mat.num_vars() << " variables with " << mat.num_obs() << " observations.\n" << std::endl;
@@ -55,10 +56,9 @@ int main(int argc, char *argv[])
 
         std::cout << "Writing precomputed correlation matrix..." << std::endl;
         time_profiler.start_new_timer("Writing precomputed correlation matrix");
-        BinaryMatrixWriter::write(mat, pars.precomputed_cormat_path);
+        BinaryMatrixWriter::write(mat, pars.output_file);
         time_profiler.stop_last_timer();
         std::cout << "Done\n" << std::endl;
-
 
         time_profiler.stop_last_timer();
         std::cout << time_profiler << std::endl;

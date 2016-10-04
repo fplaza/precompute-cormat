@@ -14,14 +14,14 @@ class MatrixManip
                 RankCmp(const double* var_data)
                     : var_data_(var_data)
                 {};
-                bool operator()(const uint64_t lhs, const uint64_t rhs)
+                bool operator()(const size_t lhs, const size_t rhs)
                 {
                     return var_data_[lhs] < var_data_[rhs];
                 }
         };
 
     public:
-        static void discard_vars_with_too_few_obs(uint64_t min_non_zero, Matrix& mat);
+        static void discard_vars_with_too_few_obs(const size_t min_non_zero, Matrix& mat);
         static void compute_ranks(Matrix& mat);
         static void precompute_cors(Matrix& mat);
 };

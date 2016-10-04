@@ -7,9 +7,9 @@
 class TextMatrixReader
 {
     public:
-        static Matrix read(const std::string& matrix_path, bool with_header);
+        static Matrix read(const std::string& matrix_path);
     private:
-        static const uint64_t MAX_LINE_LENGTH;
+        static const size_t MAX_LINE_LENGTH;
 };
 
 #endif // TEXT_MATRIX_READER_HH

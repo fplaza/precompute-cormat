@@ -1,9 +1,9 @@
-#ifndef BINARY_MATRIX_WRITER_HH
-#define BINARY_MATRIX_WRITER_HH
+#ifndef TEXT_MATRIX_WRITER_HH
+#define TEXT_MATRIX_WRITER_HH
 
 #include "Matrix.hh"
 
-class BinaryMatrixWriter
+class TextMatrixWriter
 {
     public:
         static void write(const Matrix& mat, const std::string& output_file);

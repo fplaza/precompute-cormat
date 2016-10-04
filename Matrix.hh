@@ -4,85 +4,105 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include <stdint.h>
 
 class Matrix
 {
     friend class TextMatrixReader;
-    friend class MatrixManip;
+    friend class BinaryMatrixReader;
     friend class BinaryMatrixWriter;
-
-    private:
-    static const char FILE_TYPE[9];
-    uint64_t num_vars_;
-    uint64_t num_obs_;
-    uint32_t* vars_ids_;
-    double* vars_data_;
-    Matrix(uint64_t num_vars, uint64_t num_obs);
-    uint32_t& var_id(uint64_t v);
-    double& data(uint64_t v, uint64_t o);
+    friend class MatrixManip;
 
     public:
-    ~Matrix();
-    uint64_t num_vars() const;
-    uint64_t num_obs() const;
-    uint32_t var_id(uint64_t v) const;
-    const uint32_t* vars_ids() const;
-    double data(uint64_t v, uint64_t o) const;
-    const double* data() const;
+        ~Matrix();
+        size_t num_vars() const;
+        size_t num_obs() const;
+        const std::vector<std::string>& vars_names() const;
+        const std::vector<std::string>& obs_names() const;
+        const std::string& var_name(const size_t var_id) const;
+        const std::string& obs_name(const size_t obs_id) const;
+        double data(const size_t var_id, const size_t obs_id) const;
+        const double* data() const;
+
+    private:
+        static const char FILE_TYPE[9];
+        size_t num_vars_;
+        size_t num_obs_;
+        std::vector<std::string> vars_names_;
+        std::vector<std::string> obs_names_;
+        double* data_;
+        Matrix(const size_t num_vars, const size_t num_obs);
+        std::string& var_name(const size_t var_id);
+        std::string& obs_name(const size_t obs_id);
+        double& data(const size_t var_id, const size_t obs_id);
 };
-
-std::ostream& operator<<(std::ostream& os, const Matrix& mat);
-
-    inline Matrix::Matrix(uint64_t num_vars, uint64_t num_obs)
-: num_vars_(num_vars), num_obs_(num_obs), vars_ids_(new uint32_t[num_vars]),  vars_data_(new double[num_vars*num_obs])
-{};
 
 inline Matrix::~Matrix()
 {
-    delete[] vars_ids_;
-    delete[] vars_data_;
+    delete[] data_;
 }
 
-inline uint32_t& Matrix::var_id(uint64_t v)
-{
-    return vars_ids_[v];
-}
-
-inline uint32_t Matrix::var_id(uint64_t v) const
-{
-    return vars_ids_[v];
-}
-
-inline const uint32_t* Matrix::vars_ids() const
-{
-    return vars_ids_;
-}
-
-inline double& Matrix::data(uint64_t v, uint64_t o)
-{
-    return vars_data_[v*num_obs() + o];
-}
-
-inline double Matrix::data(uint64_t v, uint64_t o) const
-{
-    return vars_data_[v*num_obs() + o];
-}
-
-inline const double* Matrix::data() const
-{
-    return vars_data_;
-}
-
-inline uint64_t Matrix::num_vars() const
+inline size_t Matrix::num_vars() const
 {
     return num_vars_;
 }
 
-inline uint64_t Matrix::num_obs() const
+inline size_t Matrix::num_obs() const
 {
     return num_obs_;
 }
 
+inline const std::vector<std::string>& Matrix::vars_names() const
+{
+    return vars_names_;
+}
+
+inline const std::vector<std::string>& Matrix::obs_names() const
+{
+    return obs_names_;
+}
+
+inline const std::string& Matrix::var_name(const size_t var_id) const
+{
+    return vars_names_[var_id];
+}
+
+inline const std::string& Matrix::obs_name(const size_t obs_id) const
+{
+    return obs_names_[obs_id];
+}
+
+inline double Matrix::data(const size_t var_id, const size_t obs_id) const
+{
+    return data_[var_id*num_obs() + obs_id];
+}
+
+inline Matrix::Matrix(const size_t num_vars, const size_t num_obs)
+    : num_vars_(num_vars),
+    num_obs_(num_obs),
+    vars_names_(num_vars),
+    obs_names_(num_obs),
+    data_(new double[num_vars*num_obs])
+{};
+
+inline std::string& Matrix::var_name(const size_t var_id)
+{
+    return vars_names_[var_id];
+}
+
+inline std::string& Matrix::obs_name(const size_t obs_id)
+{
+    return obs_names_[obs_id];
+
+}
+
+inline double& Matrix::data(const size_t var_id, const size_t obs_id)
+{
+    return data_[var_id*num_obs() + obs_id];
+}
+
+inline const double* Matrix::data() const
+{
+    return data_;
+}
 
 #endif // MATRIX_HH

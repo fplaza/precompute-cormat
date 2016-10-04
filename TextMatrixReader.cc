@@ -1,11 +1,12 @@
 #include "TextMatrixReader.hh"
 #include <fstream>
 #include <algorithm>
+#include <limits>
 
 // Should be sufficient for the biggest matrices currently processed
-const uint64_t TextMatrixReader::MAX_LINE_LENGTH = 100000;
+const size_t TextMatrixReader::MAX_LINE_LENGTH = 100000;
 
-Matrix TextMatrixReader::read(const std::string& matrix_path, bool with_header)
+Matrix TextMatrixReader::read(const std::string& matrix_path)
 {
     char line[MAX_LINE_LENGTH];
 
@@ -13,25 +14,15 @@ Matrix TextMatrixReader::read(const std::string& matrix_path, bool with_header)
     ifs.open(matrix_path.c_str());
 
     // FIRST PASS: get the dimensions of the matrix
-    // Skip header if necessary
-    if (with_header)
-        ifs.getline(line, MAX_LINE_LENGTH);
-
     // Get the number of samples
-    ifs.getline(line, MAX_LINE_LENGTH);
-    char* pos = line;
+    std::string header;
+    std::getline(ifs, header);
+    size_t num_obs = std::count_if(header.begin(), header.end(), static_cast<int(*)(int)>(std::isspace));
 
-    uint64_t num_obs = 0;
-    while (*pos != '\0')
-    {
-        if (std::isspace(*pos))
-            num_obs++;
-        pos++;
-    }
-
-    uint64_t num_vars = 1;
+    // Get the number of genes
+    size_t num_vars = 0;
     while (ifs.getline(line, MAX_LINE_LENGTH))
-        num_vars++;
+        ++num_vars;
 
     // Allocate memory to store the count matrix
     Matrix mat(num_vars, num_obs);
@@ -40,28 +31,38 @@ Matrix TextMatrixReader::read(const std::string& matrix_path, bool with_header)
     ifs.clear();
     ifs.seekg(0);
 
-    // Skip header if necessary
-    if (with_header)
-        ifs.getline(line, MAX_LINE_LENGTH);
+    // Skip potential "gene_id" or "fragment_id" string
+    while (!std::isspace(ifs.get()))
+        ;
+
+    // Get samples names
+    for (size_t curr_obs = 0; curr_obs < mat.num_obs(); ++curr_obs)
+    {
+        ifs >> mat.obs_name(curr_obs);
+    }
+    ifs.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     // Get genes ids and genes counts
-    for (uint64_t curr_var = 0; curr_var < mat.num_vars(); curr_var++)
+    for (size_t curr_var = 0; curr_var < mat.num_vars(); ++curr_var)
     {
         ifs.getline(line, MAX_LINE_LENGTH);
         char* pos = line;
 
-        mat.var_id(curr_var) = strtoul(pos, &pos, 10);
+        while (*pos != '\0' && !std::isspace(*pos))
+            ++pos;
 
-        for (uint64_t curr_obs = 0; curr_obs < mat.num_obs(); curr_obs++)
+        const std::string gene_name(line, pos-line);
+        mat.var_name(curr_var) = gene_name;
+
+        for (size_t curr_obs = 0; curr_obs < mat.num_obs(); ++curr_obs)
         {
-            // Data is read as single precision float to speed up the process
-            // If necessary, replace strtof by strtod
-            mat.data(curr_var, curr_obs) = strtof(pos, &pos);
+            mat.data(curr_var, curr_obs) = strtod(pos, &pos);
         }
     }
 
     ifs.close();
 
     return mat;
+
 }
 
