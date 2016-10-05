@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include <iostream>
+#include <boost/cstdint.hpp>
 
 class Matrix
 {
@@ -14,26 +14,22 @@ class Matrix
 
     public:
         ~Matrix();
-        size_t num_vars() const;
-        size_t num_obs() const;
-        const std::vector<std::string>& vars_names() const;
-        const std::vector<std::string>& obs_names() const;
-        const std::string& var_name(const size_t var_id) const;
-        const std::string& obs_name(const size_t obs_id) const;
-        double data(const size_t var_id, const size_t obs_id) const;
+        boost::uint64_t num_vars() const;
+        boost::uint64_t num_obs() const;
+        const boost::uint32_t* vars_names() const;
+        boost::uint32_t var_name(const boost::uint64_t var_id) const;
+        double data(const boost::uint64_t var_id, const boost::uint64_t obs_id) const;
         const double* data() const;
 
     private:
         static const char FILE_TYPE[9];
-        size_t num_vars_;
-        size_t num_obs_;
-        std::vector<std::string> vars_names_;
-        std::vector<std::string> obs_names_;
-        double* data_;
-        Matrix(const size_t num_vars, const size_t num_obs);
-        std::string& var_name(const size_t var_id);
-        std::string& obs_name(const size_t obs_id);
-        double& data(const size_t var_id, const size_t obs_id);
+        boost::uint64_t num_vars_;
+        boost::uint64_t num_obs_;
+        boost::uint32_t* const vars_names_;
+        double* const  data_;
+        Matrix(const boost::uint64_t num_vars, const boost::uint64_t num_obs);
+        boost::uint32_t& var_name(const boost::uint64_t var_id);
+        double& data(const boost::uint64_t var_id, const boost::uint64_t obs_id);
 };
 
 inline Matrix::~Matrix()
@@ -41,61 +37,44 @@ inline Matrix::~Matrix()
     delete[] data_;
 }
 
-inline size_t Matrix::num_vars() const
+inline boost::uint64_t Matrix::num_vars() const
 {
     return num_vars_;
 }
 
-inline size_t Matrix::num_obs() const
+inline boost::uint64_t Matrix::num_obs() const
 {
     return num_obs_;
 }
 
-inline const std::vector<std::string>& Matrix::vars_names() const
+inline const boost::uint32_t* Matrix::vars_names() const
 {
     return vars_names_;
 }
 
-inline const std::vector<std::string>& Matrix::obs_names() const
-{
-    return obs_names_;
-}
-
-inline const std::string& Matrix::var_name(const size_t var_id) const
+inline boost::uint32_t Matrix::var_name(const boost::uint64_t var_id) const
 {
     return vars_names_[var_id];
 }
 
-inline const std::string& Matrix::obs_name(const size_t obs_id) const
-{
-    return obs_names_[obs_id];
-}
-
-inline double Matrix::data(const size_t var_id, const size_t obs_id) const
+inline double Matrix::data(const boost::uint64_t var_id, const boost::uint64_t obs_id) const
 {
     return data_[var_id*num_obs() + obs_id];
 }
 
-inline Matrix::Matrix(const size_t num_vars, const size_t num_obs)
+inline Matrix::Matrix(const boost::uint64_t num_vars, const boost::uint64_t num_obs)
     : num_vars_(num_vars),
     num_obs_(num_obs),
-    vars_names_(num_vars),
-    obs_names_(num_obs),
+    vars_names_(new boost::uint32_t[num_vars]),
     data_(new double[num_vars*num_obs])
 {};
 
-inline std::string& Matrix::var_name(const size_t var_id)
+inline boost::uint32_t& Matrix::var_name(const boost::uint64_t var_id)
 {
     return vars_names_[var_id];
 }
 
-inline std::string& Matrix::obs_name(const size_t obs_id)
-{
-    return obs_names_[obs_id];
-
-}
-
-inline double& Matrix::data(const size_t var_id, const size_t obs_id)
+inline double& Matrix::data(const boost::uint64_t var_id, const boost::uint64_t obs_id)
 {
     return data_[var_id*num_obs() + obs_id];
 }

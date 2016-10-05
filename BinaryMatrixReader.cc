@@ -15,25 +15,16 @@ Matrix BinaryMatrixReader::read(const std::string& input_file)
         throw std::invalid_argument(input_file + " is not a valid binary matrix file.");
 
     // Read dimensions
-    size_t num_vars;
-    size_t num_obs;
-    ifs.read(reinterpret_cast<char*>(&num_vars), sizeof(size_t));
-    ifs.read(reinterpret_cast<char*>(&num_obs), sizeof(size_t));
+    boost::uint64_t num_vars;
+    boost::uint64_t num_obs;
+    ifs.read(reinterpret_cast<char*>(&num_vars), sizeof(boost::uint64_t));
+    ifs.read(reinterpret_cast<char*>(&num_obs), sizeof(boost::uint64_t));
 
     // Allocate memory
     Matrix mat(num_vars, num_obs);
 
     // Read variables names
-    for (size_t curr_var = 0; curr_var < mat.num_vars(); ++curr_var)
-    {
-        std::getline(ifs, mat.var_name(curr_var), '\0' );
-    }
-
-    // Read observations names
-    for (size_t curr_obs = 0; curr_obs < mat.num_obs(); ++curr_obs)
-    {
-        std::getline(ifs, mat.obs_name(curr_obs), '\0' );
-    }
+    ifs.read(reinterpret_cast<char*>(mat.vars_names_), sizeof(boost::uint32_t)*mat.num_vars());
 
     // Read matrix data
     ifs.read(reinterpret_cast<char*>(mat.data_), sizeof(double)*mat.num_vars()*mat.num_obs());

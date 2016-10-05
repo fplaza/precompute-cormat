@@ -17,6 +17,7 @@ Parameters Parameters::parse(int argc, char* argv[])
 
     io_parameters.add_options()
         ("input-file,i", po::value<std::string>(&pars.input_file), "Text file containing the variables and their respective observations.")
+        ("with-header", boost::program_options::bool_switch(&pars.with_header), "Set if the input matrix has an with header")
         ("output-file,o", po::value<std::string>(&pars.output_file), "Generated binary file containing the precomputed correlation matrix.")
         ;
 

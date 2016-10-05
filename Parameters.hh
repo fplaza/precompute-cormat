@@ -7,6 +7,7 @@
 struct Parameters
 {
     std::string input_file;
+    bool with_header;
     std::string output_file;
     std::string cor_method;
     uint64_t min_non_zero;

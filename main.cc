@@ -4,9 +4,7 @@
 #include "TimeProfiler.hh"
 #include "Parameters.hh"
 #include "TextMatrixReader.hh"
-#include "TextMatrixWriter.hh"
 #include "BinaryMatrixWriter.hh"
-#include "BinaryMatrixReader.hh"
 #include "MatrixManip.hh"
 
 void no_more_memory()
@@ -28,7 +26,7 @@ int main(int argc, char *argv[])
 
         std::cout << "Reading matrix..." << std::endl;
         time_profiler.start_new_timer("Reading matrix");
-        Matrix mat = TextMatrixReader::read(pars.input_file);
+        Matrix mat = TextMatrixReader::read(pars.input_file, pars.with_header);
         time_profiler.stop_last_timer();
         std::cout << "Done." <<
             "The matrix has "  << mat.num_vars() << " variables with " << mat.num_obs() << " observations.\n" << std::endl;
